@@ -1,3 +1,5 @@
+
+
 ---
 title: Standort-basierte Daten via MQTT
 subtitle: Seminararbeit "Webservice Security"
@@ -8,7 +10,9 @@ language: de-CH
 references:
 - 	id: sem_handheld
 	title: TimeTraces - Seminararbeit "Entwickeln von Anwendungen für Hand Held"
-	author: Marco Wettstein
+	author: 
+	- 	family: Wettstein
+		given: Marco
 	date: 2015-03-02
 -	id: git_owntracks
 	title: OwnTracks
@@ -58,11 +62,7 @@ references:
 	title: MQTT for Sensor Networks – MQTT-SN
 	URL: http://mqtt.org/tag/mqtt-s
 	date: 2015-05-14
-
-
-
-
-
+---
 
 
 
