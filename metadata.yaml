@@ -10,7 +10,26 @@ references:
 	title: TimeTraces - Seminararbeit "Entwickeln von Anwendungen für Hand Held"
 	author: Marco Wettstein
 	date: 2015-03-02
-
+-	id: git_owntracks
+	title: OwnTracks
+	URL: https://github.com/owntracks/owntracks/wiki
+	date: 2015-05-14
+-	id: licence_owntracks
+	title: OwnTracks Lizenz
+	date: 2015-05-14
+	URL: https://github.com/owntracks/android/blob/master/LICENSE
+-	id: mosquitto
+	title: Mosquitto Homepage
+	date: 2015-05-14
+	URL: http://mosquitto.org/
+-	id: mosquitt_auth
+	title: Mosquitto Authenfication
+	date: 2015-05-14
+	URL: http://mosquitto.org/man/mosquitto-conf-5.html#idp49111296
+-	id: mosquitto_general_options
+	title: Mosquitto General Options
+	date: 2015-05-14
+	URL: http://mosquitto.org/man/mosquitto-conf-5.html#idp49117824
 ---
 
 
