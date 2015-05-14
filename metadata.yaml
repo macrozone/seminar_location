@@ -46,7 +46,18 @@ references:
 	title: Wikipedia - MQ Telemetry Transport 
 	date: 2015-05-14
 	URL: http://de.wikipedia.org/wiki/MQ_Telemetry_Transport
-
+-	id: mqtt_org
+	URL: http://mqtt.org/
+	date: 2015-05-14
+	URL: http://mqtt.org/
+-	id: mqtt_faq
+	URL: http://mqtt.org/faq
+	date: 2015-05-14
+	title: MQTT - Frequently Asked Questions
+-	id: mqtt_sn
+	title: MQTT for Sensor Networks – MQTT-SN
+	URL: http://mqtt.org/tag/mqtt-s
+	date: 2015-05-14
 
 
 
