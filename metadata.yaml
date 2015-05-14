@@ -62,6 +62,19 @@ references:
 	title: MQTT for Sensor Networks – MQTT-SN
 	URL: http://mqtt.org/tag/mqtt-s
 	date: 2015-05-14
+-	id: hive_mq
+	title: Hive MQ Features.
+	URL: http://www.hivemq.com/features/
+	date: 2015-05-14
+-	id: moquette_git
+	title: Github Moquette
+	URL: https://github.com/andsel/moquette
+	date: 2015-05-14
+-	id: mosca_git
+	title: Github Mosca
+	URL: http://mcollina.github.io/mosca/
+	date: 2015-05-14
+	
 ---
 
 
