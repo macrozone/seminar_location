@@ -30,9 +30,22 @@ references:
 	title: Mosquitto General Options
 	date: 2015-05-14
 	URL: http://mosquitto.org/man/mosquitto-conf-5.html#idp49117824
----
-
-
+-	id: mosquitto_bridges
+	URL: http://mosquitto.org/man/mosquitto-conf-5.html#idp49322480
+	title: Mosquitto Bridges Options
+	date: 2015-05-14
+-	id: mqtt_ibm
+	URL: https://www.ibm.com/developerworks/mydeveloperworks/blogs/aimsupport/entry/what_is_mqtt_and_how_does_it_work_with_websphere_mq?lang=en
+	date: 2015-05-14
+	title: What is MQTT and how does it work with WebSphere MQ?
+-	id: observer_pattern
+	URL: http://de.wikipedia.org/wiki/Beobachter_(Entwurfsmuster)
+	date: 2015-05-14
+	title: Beobachter (Entwurfsmuster)
+-	id: mqtt_wiki
+	title: Wikipedia - MQ Telemetry Transport 
+	date: 2015-05-14
+	URL: http://de.wikipedia.org/wiki/MQ_Telemetry_Transport
 
 
 
