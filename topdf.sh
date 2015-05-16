@@ -1,0 +1,1 @@
+pandoc metadata.yaml 10.md -o out.pdf --table-of-contents --listing --filter pandoc-citeproc --number-sections -s

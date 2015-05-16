@@ -74,7 +74,22 @@ references:
 	title: Github Mosca
 	URL: http://mcollina.github.io/mosca/
 	date: 2015-05-14
-	
+-	id: cloud_mqtt
+	title: CloudMQTT
+	URL: http://www.cloudmqtt.com/
+	date: 2015-05-14
+-	id: google_latitude
+	title: Latitude wurde eingestellt
+	date: 2015-05-15
+	URL: https://support.google.com/gmm/answer/3001634?hl=de
+-	id: google_plus_api
+	date: 2015-05-15
+	title: Google+ Platform - People (Personen)
+	URL: https://developers.google.com/+/api/latest/people
+-	id: google_plus_api_broken
+	URL: https://code.google.com/p/google-plus-platform/issues/detail?id=620
+	title: Field 'currentLocation' is not provided in API result (or empty), while the field is cleary filled on the page.
+	date: 2015-05-16
 ---
 
 
