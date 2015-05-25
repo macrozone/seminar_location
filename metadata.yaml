@@ -90,6 +90,18 @@ references:
 	URL: https://code.google.com/p/google-plus-platform/issues/detail?id=620
 	title: Field 'currentLocation' is not provided in API result (or empty), while the field is cleary filled on the page.
 	date: 2015-05-16
+-	id: master_thesis_uni
+	URL: http://www.ifi.uzh.ch/isr/teaching/masterarbeiten/locationprivacy.html
+	title: Masterarbeit - Location Privacy - Probleme und Lösungen
+	date: 2015-05-12
+-	id: ccc
+	URL: http://www.ccc.de/updates/2009/vds-gutachten
+	date: 2015-05-12
+	title: Chaos Computer Club veröffentlicht Stellungnahme zur Vorratsdatenspeicherung
+-	id: literate_coffee
+	URL: http://coffeescript.org/#literate
+	date: 2015-05-25
+	title: Literate CoffeeScript
 ---
 
 

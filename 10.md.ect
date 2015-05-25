@@ -1,4 +1,5 @@
 
+<% include "metadata.yaml" %>
 
 
 # Einleitung
@@ -93,10 +94,10 @@ lassen sich Profil-Daten eines Benutzers abfragen. Wählt man `me` als `userId`,
 
 ![\label{fig_google_plus_api} Abfrage der Google+-Schnittselle. Wird *name* abgefragt, erscheint eine Antwort, bei *currentLocation* nicht.](fig_google_plus_api.png)
 
-Es handelt es sich hier offenbar um einen Fehler. Im *issue-tracker* der *google-plus-platform* ist ein entsprechender Eintrag[^fn_google-plus-platform] verfasst word mit dem Datum 24.07.2013. Bis zum Zeitpunkt des Erfassens dieser Arbeit ist keine Lösung zum Problem eingegangen.
+Es handelt es sich hier offenbar um einen Fehler. Im *issue-tracker* der *google-plus-platform* ist ein entsprechender Eintrag[^fn_google_plus_api_broken] verfasst word mit dem Datum 24.07.2013. Bis zum Zeitpunkt des Erfassens dieser Arbeit ist keine Lösung zum Problem eingegangen.
 
 [^fn_google_plus_api]: Siehe [@google_plus_api]
-[^fn_google-plus-platform]: Siehe [@google-plus-platform]
+[^fn_google_plus_api_broken]: Siehe [@google_plus_api_broken]
 
 
 
@@ -196,7 +197,7 @@ Weiterhin kann Mosquitto sich mit weiteren Brokern via *Bridge* verbinden. [^fn_
 
 [^fn_mosquitto_bridge]: Siehe [@mosquitto_bridges]
 
-[^fn_mosquitto_ autosave_interval]: Siehe Option * autosave_interval* in Quelle [@mosquitto_general_options]
+[^fn_mosquitto_autosave_interval]: Siehe Option * autosave_interval* in Quelle [@mosquitto_general_options]
 
 
 #### Verschlüsselung und Authentifizierung
@@ -245,7 +246,6 @@ Der Quellcode von Mosca ist unter Github veröffentlicht, es ist allerdings kein
 *GnatMQ* ist ein auf dem .NET-Framework von Microsoft basierender MQTT-Broker. Er unterstützt alle 3 QoS-Stufen, Authentifizierung via Benutzername/Passwort, sowie Zugriffskontrolle, jedoch noch keine SSL/TLS-Verbindunng und kein *Bridge*-Modus.
 
 
-
 ### Gehostete MQTT-Broker 
 
 Statt einer selbst verwalteten Lösung, kommen auch Cloud-Dienste in Frage (*software as a service*). 
@@ -261,47 +261,65 @@ Der Dienst unterstützt u.a. Authentifizierung, Zugriffskontrolle (*ACL*), *Brid
 
 [^fn_cloud_mqtt]: [@cloud_mqtt]
 
-
-
-
-### Vergleich
-
 #### Self-Hosted gegen Cloud-Lösung
 
 Bei Standort-Daten handelt es sich um sensible Daten. Diese besitzen auch einen gewissen *Business Value*, was bei Standort-basierter Werbung zu sehen ist. Bei Cloud-Lösungen wird die Kontrolle über diese Daten an einen Fremdanbieter abgegeben. Im Rahmen dieser Arbeit ist dies zweitrangig; in einer produktiven Anwendung ist dies aber nicht zu vernachlässigen.
 
 Cloud-Lösungen bieten aber den Vorteil des einfacheren Setup. Skalierung und Betrieb kann ebenfalls an den Anbieter abgegeben werden.
 
-#### Detailvergleich
-
-(TODO: Tabelle)
-
-
 
 ### Wahl
 
-Alle untersuchten Broker kämen prinzipiell in Frage (bei den Kostenpflichtigen in einer Test-Version), die Wahl fiel jedoch auf Mosquitto, da dieser sehr gut dokumentiert ist und sehr viele MQTT-Features unterstützt. Somit kann sich mit vielen Aspekten von MQTT auseinandergesetzt werden.
+Alle untersuchten Broker kämen prinzipiell in Frage (bei den Kostenpflichtigen in einer Test-Version), die Wahl fiel jedoch auf Mosquitto, da dieser sehr gut dokumentiert ist und sehr viele MQTT-Features unterstützt. Somit kann sich mit vielen Aspekten von MQTT auseinandergesetzt werden. 
 
-Für die Installation steht u.a. eine (virtuelle) Ubuntu Instanz (12.04 LTS) in einem Rechenzentrum zur Verfügung.
+Für die Installation steht u.a. eine (virtuelle) Ubuntu Instanz (12.04 LTS) in einem Rechenzentrum zur Verfügung. Mosquitto kann direkt über Ubuntu/Debian's Paketmanager *apt* installiert werden.
 
 
 \pagebreak
 
 # Konzept & Design
 
-## Sicherheitsapsekte
+## Sicherheitsaspekte
 
-### Sensible Daten
+### Location Privacy
 
-Standortdaten sind sicherheitsrelevant. Es handelt sich um sensible Daten, die insbesondere vor Missbrauch geschützt werden müssen.
+Standortdaten sind Sicherheitsrelevant. Es handelt sich um sensible Daten, die insbesondere vor Missbrauch geschützt werden müssen. 
+
+Der Schutz der *Location Privacy*, d.h. der Schutz der privaten Standortdaten ist spätestens seit dem Aufkommen GPS-fähiger Smartphones ein wichtiges Thema.
+
+Zum Schutz der Standortdaten im Kontext der sogenannten *Vorratsdatenspeicherung* in Deutschland schrieb der *Chaos Computer Club* 2009:
+
+> "Durch die ungebremste Aufzeichnung der digitalen Spuren wird das Mobiltelefon mehr und mehr zu einer Ortungswanze, sofern dem speicherwütigen Staat nicht Einhalt geboten wird. Sollte die Vorratsdatenspeicherung vor Gericht Bestand haben, bedeutet das praktisch ein Ende der Freiheit, unbeobachtet und ungestört zu leben"
+
+[Frank Rieger, @ccc]
+
+
+6 Jahre säpter bleibt der Schutz der Standortdaten ein aktuelles Thema, die Universität Zürich hat dazu (Stand Mai 2015) eine Masterarbeit ausgeschrieben [^fn_master_thesis_uni]. 
+
+[^fn_master_thesis_uni]: Siehe [@master_thesis_uni]
+
+
+
 
 ### Verschlüsselung
 
-TODO
+Das Verschlüsseln der Übertragung zwischen Endgeräten dient dem Schutz der Daten vor dem Einblick oder Manipulation durch Dritte. 
+
+Eine Verschlüsselung kann *Ende-zu-Ende* über die *gesamte Übertragungsstecke* erfolgen, d.h. beispielsweise von der Aufzeichnung der Daten auf dem Mobil-Gerät, bis zur Anzeige, resp. Auswertung der Daten auf der endgültigen Anwendung.
+
+Die Übertragung kann auch nur Streckenweise veschlüsselt werden. *SSL/TLS* verschlüsselt beispielsweise die TCP/IP-Verbindung zwischen dem Mobil-Gerät und dem MQTT-Broker, der Broker selbst "sieht" die Daten allerdings im Klartext. MQTT sieht selbst keine Veschlüsselung innerhalb des Protokolles vor, es ist jedoch mit einem eigenen Verfahren möglich die Anwendungsdaten zu verschlüsseln. Ohne eine solche Verschlüsselung ist ein MQTT-Broker aber eine sicherheitsrelevante Stelle. Sensible Daten müssen also über einen vertraulichen Broker gesendet werden. Auch Übergänge von MQTT in ein anderes Protokoll (z.b. Websockets) sind Sicherheitsrelevant. Die entsprechenden Protokolle müssen eine gleichwertige Verschüsselung benutzen (z.b. *HTTPS*).
+
+
+
+
 
 ### Authentifizierung
 
-TODO
+Neben der *Vertraulichkeit* und der *Integrität* der Daten ist ferner die *Authentizität*, d.h. die Echtheit der Daten, sowie die *Verbindlichkeit* und *Zurechenbarkeit* von Bedeutung. 
+
+Jemand, der den Dienst nutzt, muss sich also ausweisen können. Dies kann über Benutzername und Passwort, über einen Schlüssel oder ein Zertifikat erfolgen.
+
+Für die zu erstellende Anwendung soll ein Benutzername-Passwort-Verfahren zur Anwendung kommen.
 
 ## Architektur\label{sec_arch}
  
@@ -330,13 +348,52 @@ Weiterhin findet eine *Mashine-to-mashine*-Kommunikation mit dem vorgelagerten M
 
 ### User-Stories
 
-(TODO): Story-Cards
+Die Anforderungen an diesen Standortservice werden durch folgende *User Stories* beschrieben:
 
-- Als Benutzer möchte ich mich für den Service registrieren können
-- Als Benutzer möchte ich mich an den Service anmelden können
-- Als Benutzer möchte ich meine Standort-Protokoll-Anwendung (z.b. *Owntracks*) mit dem Dienst verbinden können
-- Als Benutzer möchte ich meine Standortdaten über eine Schnittstelle abfragen können
-- Als Benutzer möchte ich Standort-Einträge löschen können.
+<% include 'story.macro.ect',
+	number: "01"
+	title: "Als Benutzer möchte ich mich für den Service registrieren können"
+	description: "Neue Benutzer sollen sich registrieren können, damit sie sich später anmelden können"
+	priority: "MUST"
+	accCriteria: [
+ 		"User kann Email angeben"
+ 		"User kann Passwort angeben"
+ 		"User TODO"
+ 	]
+%>
+
+<% include 'story.macro.ect',
+	number: "02"
+	title: "Als Benutzer möchte ich mich an den Service anmelden können"
+	description: "Registrierte Benutzer können sich anmelden"
+	priority: "MUST"
+	accCriteria: []
+%>
+
+<% include 'story.macro.ect',
+	number: "03"
+	title: "Als Benutzer möchte ich meine Standort-Protokoll-Anwendung (z.b. *Owntracks*) mit dem Dienst verbinden können"
+	description: "Der Benutzer kann seine Protokoll-Anwendung so konfigurieren, dass sie den Standort an den Dienst sendet"
+	priority: "MUST"
+	accCriteria: []
+%>
+
+<% include 'story.macro.ect',
+	number: "04"
+	title: "Als Benutzer möchte ich meine Standortdaten über eine Schnittstelle abfragen können"
+	description: "Der Service soll Schnittstellen zur Verfügung stellen, mit welcher ein Anwendungen das Standort-Protokoll des Benutzers abfragen können"
+	priority: "MUST"
+	accCriteria: []
+%>
+
+<% include 'story.macro.ect',
+	number: "05"
+	title: "Als Benutzer möchte ich Standort-Einträge löschen können."
+	description: "Bestehende Einträge des Standort-Protokolles sollen sich permanentl öschen lassen können"
+	priority: "MAY"
+	accCriteria: []
+%>
+
 
 
 ### System
@@ -388,4 +445,28 @@ TODO
 
 ## Generischer Event-Service
 
+
+\appendix
+
+
+# Annotierter Quelltext
+
+Nachfolgend der Quellcode des Location-Services im *Literate CoffeeScript*-Stil [^fn_literate_coffee].
+
+[^fn_literate_coffee]: Siehe [@literate_coffee]
+
+(app.coffee.md)
+
+<% include 'increase-header.macro.ect', file: "../location.macrozone.ch/app/app.coffee.md", level: 2 %>
+
+## File app.jade
+
+<% include 'listing.macro.ect', file: "../location.macrozone.ch/app/app.jade", type: "jade", id: "app.jade" %>
+
+## File app.styl
+
+<% include 'listing.macro.ect', file: "../location.macrozone.ch/app/app.styl", type: "stylus", id: "app.styl" %>
+
+
+# Quellenangaben
 
