@@ -102,6 +102,10 @@ references:
 	URL: http://coffeescript.org/#literate
 	date: 2015-05-25
 	title: Literate CoffeeScript
+-	id: restivus
+	URL: https://github.com/kahmali/meteor-restivus/
+	date: 2015-05-25
+	title: Meteor Restivus
 ---
 
 

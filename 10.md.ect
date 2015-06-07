@@ -2,9 +2,11 @@
 <% include "metadata.yaml" %>
 
 
-# Einleitung
+\pagebreak
 
+# Vorwort
 
+TODO
 
 \pagebreak
 
@@ -68,7 +70,6 @@ Die Ziele dieser Arbeit sind
 - Betrachtung generell sensitiver User-Daten, wie Standortverlauf
 - Setup einer geeigneten MQTT-Broker-Lösung mit geeigneten Sicherheitseinstellungen
 - Verbinden von *OwnTracks* oder einer ähnlichen Anwendung und *TimeTraces* via MQTT und dem gewählten Broker
-- 
 
 # Recherche
 
@@ -118,16 +119,10 @@ Die Verwendung von *OwnTracks* ist im Rahmen dieser Arbeit als Ausgangslage vord
 
 
 
-TODO: reinnehmen?
-
-https://play.google.com/store/apps/details?id=com.glympse.android.glympse
-http://onetouchlocation.creativeworkline.com/
-
-
 
 ## MQTT
 
-*MQ Telemetry Transport* oder kurz *MQTT* ist ein Protokoll für die Maschine-zu-Maschine-Kommunikation von Telemetrie-Daten. MQTT wurde insbesondere für Leistungsschwache Endgeräte entwickelt, sowie für Netzwerke mit hoher Verzögerung oder geringer Leistung. So wurde MQTT auch für die Kommunikation über Satelliten genutzt. [^fn_mqtt_satellit]
+*Message Queue Telemetry Transport* oder kurz *MQTT* ist ein Protokoll für die Maschine-zu-Maschine-Kommunikation von Telemetrie-Daten. MQTT wurde insbesondere für Leistungsschwache Endgeräte entwickelt, sowie für Netzwerke mit hoher Verzögerung oder geringer Leistung. So wurde MQTT auch für die Kommunikation über Satelliten genutzt. [^fn_mqtt_satellit]
 
 MQTT wurde 1999 von Dr Andy Stanford-Clark (IBM) und Arlen Nipper (Arcom, Eurotech) entwickelt. [^fn_mqtt_faq]
 
@@ -353,9 +348,9 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 	description: "Neue Benutzer sollen sich registrieren können, damit sie sich später anmelden können"
 	priority: "MUST"
 	accCriteria: [
- 		"User kann Email angeben"
- 		"User kann Passwort angeben"
- 		"User TODO"
+ 		"Benutzer kann Email angeben"
+ 		"Benutzer kann Passwort angeben"
+ 		"Benutzer TODO"
  	]
 %>
 
@@ -364,7 +359,22 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 	title: "Als Benutzer möchte ich mich an den Service anmelden können"
 	description: "Registrierte Benutzer können sich anmelden"
 	priority: "MUST"
-	accCriteria: []
+	accCriteria: [
+		"Benutzer kann Benutzername und Passwort eingeben"
+		"Benutzer ist danach authoriziert und kann den Dienst nutzten"
+	]
+%>
+
+<% include 'story.macro.ect',
+	number: "02"
+	title: "Als Benutzer möchte ich mich vom Service abmelden können"
+	description: "Angemeldete Benutzer können sich vom Service abmelden. Danach müssen sie sich wieder anmelden um den Dienst zu benutzen"
+	priority: "MUST"
+	accCriteria: [
+		"Es gibt eine Abmeldemöglichkeit (Schaltflächen, API-Befehl)"
+		"Nach dem Abmelden können keine Daten mehr abgefragt werden"
+		"Benutzer kann sich im abgemeldeten Zustand wieder anmelden oder registrieren"
+	]
 %>
 
 <% include 'story.macro.ect',
@@ -372,7 +382,9 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 	title: "Als Benutzer möchte ich meine Standort-Protokoll-Anwendung (z.b. *Owntracks*) mit dem Dienst verbinden können"
 	description: "Der Benutzer kann seine Protokoll-Anwendung so konfigurieren, dass sie den Standort an den Dienst sendet"
 	priority: "MUST"
-	accCriteria: []
+	accCriteria: [
+		"Benutzer hat alle nötigen Informationen, die er bei OwnTracks eingeben muss"
+	]
 %>
 
 <% include 'story.macro.ect',
@@ -380,7 +392,11 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 	title: "Als Benutzer möchte ich meine Standortdaten über eine Schnittstelle abfragen können"
 	description: "Der Service soll Schnittstellen zur Verfügung stellen, mit welcher ein Anwendungen das Standort-Protokoll des Benutzers abfragen können"
 	priority: "MUST"
-	accCriteria: []
+	accCriteria: [
+		"Kann nur authoriziert benutzt werden"
+		"Zeigt nur eigene Standort-Daten an"
+		"Bereich kann mittels von- bis-Datum eingeschränkt werden"
+	]
 %>
 
 <% include 'story.macro.ect',
@@ -388,12 +404,20 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 	title: "Als Benutzer möchte ich Standort-Einträge löschen können."
 	description: "Bestehende Einträge des Standort-Protokolles sollen sich permanentl öschen lassen können"
 	priority: "MAY"
-	accCriteria: []
+	accCriteria: [
+		"Benutzer kann ein Datum angeben. Die Zeiteinträge vor diesem Datum werden gelöscht"
+	]
 %>
 
 
 
 ### System
+
+TODO
+
+![\label{fig_system} Systemübersicht](fig_system.png)
+
+
 
 
 ### Sicherheitsaspekte
@@ -420,11 +444,71 @@ Der Dienst speichert die schützenswerten Standort-Daten und muss entsprechend v
 
 # Umsetzung
 
-TODO
 
-## Screenshots
+## Mosquitto
 
-TODO
+
+Mosquitto wurde mit Hilfe des Ubuntu/Debian-Paketmanagers *apt* auf einem Ubuntu 14.04 LTS Server installiert, 
+dabei wurde die Standardkonfiguration weitgehend übernommen und lediglich TLS/SSL aktiviert. Das dazu nötige
+Zertifikat wurde über *RapidSSL* erstellt. Verfügbar ist der Broker unter mqtts://lab.macrozone.ch:8883.
+
+## Location-Service
+
+
+### Die Anwendung
+
+Der Locationservice wurde als Meteor-Applikation umgesetzt. Ein Benutzer kann sich auf den Dienst registrieren mit Benutzername und Passwort,
+danach wird ihm ein Topic angezeigt, welches er in seiner *OwnTracks*-Anwendung auf seinem Smartphone angeben kann. *OwnTracks* wird
+künftig den Standort über den MQTT-Broker an die Anwendung senden. Die Koordinate, welche *OwnTracks* senden, wird über 
+Google's Geocoding-Api [^fnGeocoding] um die Adresse des Standortes ergänzt.
+
+[^fnGeocoding]: Siehe https://developers.google.com/maps/documentation/geocoding/#ReverseGeocoding
+
+Die Anwendung speichert die Standortdaten inkl. der aufgelösten Adresse des Benutzers in einer *MongoDB*-Datenbank und zeigt die Daten in einer Tabelle und auf einer Karte an. Abbildung \ref{fig_location_screenshot} zeigt die Anwendung, wie sie ein eingeloggter Benutzer sieht. Er kann dabei in der Tabelle bestimmte Einträge löschen.
+
+![\label{fig_location_screenshot} Screenshot des erstellten Dienstes *location.macrozone.ch*, wie sie ein eingeloggter Benutzer sieht.
+](fig_location_screenshot.png)
+
+Im Anhang unter \ref{src_location_service} ist der annotierte Quelltext der Anwendung abgebildet. 
+
+### API
+
+Die Anwendung stellt einerseits eine REST-API, anderseits eine *DDP*-Api zur Verfügung. *DDP* ist ein Protokol basierend
+auf Websockets und ermöglicht ein *Publish-Subscribe*-Pattern ähnlich zu MQTT. Weiterhin ergmöglicht DDP *Rremote procedure calls*, d.h. es können gewisse auf dem Server definierte Methoden auf dem Client aufgerufen werden.
+
+Im Anhang unter \ref{src_timetraces_integration} ist die Integration des Standortdienstes in einer Meteor-Anwendung (*TimeTraces*) 
+zu sehen. Die Anwendung baut eine (DDP)-Verbindung zum Location-Dienst auf und definierte eine *Collection* auf der Client-Anwendung, welche diese Verbindung nutzt. Die Client-Anwendung logt sich danach auf dem Standortdienst mit dem Benutzername und Passwort des Benutzers oder mit einem *Refresh*-Token (nach einer erstmaligen, erfolgreichen Anemldung) des Benutzers ein. Abbonniert ("subscribed") die Anwendung darauf z.b.  "myLocations", so stehen danach die Standort-Daten in der definierten *Collection* zur Verfügung.
+
+
+Weiterhin stellt die Anwendung mit Hilfe des Paketes *nimble:restivus* eine REST-Schnittstellen zur Verfügung. Die Anwendung exponiert
+die Collection *Locations* als REST-Schnittstelle, der Zugriff braucht vorgängig eine Authentifizierung. In der Dokumentation des Paketes 
+wird beschrieben, wie die Authentifizierung und die exponierten REST-Routen benutzt werden [^fn_restivus].
+
+[^fn_restivus]: Siehe Quelle [@restivus].
+
+### Setup & Betrieb
+
+Die Meteor-Anwendung wurde als node.js-Applikation gebündelt und auf einem Ubuntu 14.04 LTS Server geladen. Sie ist unter https://location.macrozone.ch verfügbar. Die Anwendung lauscht dabei auf einem definierten Port. Ein vorgeschalter NGINX-Server kümmert sich dabei um das Auflösen des Host-namens (location.macrozone.ch) und leitet den Verkehr an diesen Hostnamen an die Node/Meteor-Applikation auf den definierten Port weiter. Weiterhin fungiert der NGINX-Server als SSL-Endpunkt, d.h. ein Client (z.b. Browser) kommuniziert mit dem NGINX-Server über eine verschlüsselte Verbindung, dieser entschlüsselt den Verkehr und kommuniziert mit der Node-Anwendung, welcher auf dem selben Server läuft, unverschlüsselt.
+
+Als SSL-Zertifikat wurde dabei der Dienst *SSLMate* [^fnsslMate] verwendet. Der Dienst ist zwar nicht kostenlos, bietet aber ein komfortables Kommandozeilen-Tool, mit desse Hilfe ein neues Zertifikat in wenigen Minuten erstellt werden kann.
+Das Tool kann weiterhin für die wichtigsten Server (Apache, NGINX, etc.) Beispiel-konfigurationen erzeugen.
+
+Es wäre zwar möglich für den Webserver die selbe Domain und das selbe Zertifikat wie für den MQTT-Broker zu verwenden,
+allerdings wurde für den Broker ein generischer Name gewählt, da er per-se nicht auf einen "Location"-Dienst eingeschränkt ist. Da die Zertifikaterstellung über RapidSSL vergleichsweise Zeitaufwendig war, wurde hier der alternative Dienst *SSLMate* verwendet.
+
+[^fnsslMate]: https://sslmate.com/
+
+
+
+## Integration von TimeTraces
+
+TimeTraces nutzt die Standortdaten des Benutzers und zeigt bei Änderungen dieser Daten ein *Event* an. D.h. ein Benutzer sieht, wann er an welchen Ort war und wann er seinen Standort gewechselt hat. Ein Benutzer logt sich dabei über den beim Location-Service definierten Login ein. Fortan werden die Standortdaten angezeigt. Abbildung \ref{fig_timetraces_integration_screenshot} zeigt einen Screenshot von *TimeTraces* nach der Integration.
+
+Im Anhang unter \ref{src_location_service} ist der Quelltext dieser Integration abgebildet.
+
+![\label{fig_timetraces_integration_screenshot} *TimeTraces* nach Integration des Standort-Dienstes. Änderungen des Standorts werden im Protokoll angezeigt.
+](fig_timetraces_integration_screenshot.png)
+
 
 
 \pagebreak
@@ -440,15 +524,19 @@ TODO
 
 ## Indoor-Standorte mittels Beacons
 
+TODO
+
 ## Generischer Event-Service
 
+TODO
 
+\pagebreak
 \appendix
 
 
-# Annotierter Quelltext - Location-Service
+# Annotierter Quelltext - Location-Service \label{src_location_service}
 
-Nachfolgend der Quellcode des Location-Services im *Literate CoffeeScript*-Stil [^fn_literate_coffee].
+Nachfolgend der Quellcode des Location-Services [location.macrozone.ch](location.macrozone.ch) im *Literate CoffeeScript*-Stil [^fn_literate_coffee]. Er ist verfügbar unter [https://github.com/macrozone/location_service/](https://github.com/macrozone/location_service/)
 
 [^fn_literate_coffee]: Siehe [@literate_coffee]
 
@@ -464,6 +552,13 @@ Nachfolgend der Quellcode des Location-Services im *Literate CoffeeScript*-Stil 
 
 <% include 'listing.macro.ect', file: "../location.macrozone.ch/app/app.styl", type: "stylus", id: "app.styl" %>
 
+# Integration des Location-Service in timeTraces \label{src_timetraces_integration}
+
+<% include 'increase-header.macro.ect', file: "../timetraces/client/LocationService.coffee.md", level: 2 %>
+
+# Github
+
+TODO
 
 # Quellenangaben
 
