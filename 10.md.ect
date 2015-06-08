@@ -350,7 +350,8 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 	accCriteria: [
  		"Benutzer kann Email angeben"
  		"Benutzer kann Passwort angeben"
- 		"Benutzer TODO"
+ 		"Benutzer kann registrieren Button drücken"
+ 		"Benutzer ist danach Registriert"
  	]
 %>
 
@@ -428,9 +429,7 @@ Beide Kanäle müssen über eine aktuelle Technologie verschlüsselt werden.
 
 #### Datenschutz
 
-Der Dienst speichert die schützenswerten Standort-Daten und muss entsprechend vor Missbrauch geschützt werden.
-
-(TODO NFR):
+Der Dienst speichert die schützenswerten Standort-Daten und muss entsprechend vor Missbrauch geschützt werden. Dies definiert folgende Nicht-Funktionale Anforderungen:
 
 - Ein angemeldeten Benutzer kann nur seine Standort-Daten auslesen und bearbeiten
 - Ein nicht-angemeldeter Benutzer kann keine Daten sehen
@@ -504,18 +503,21 @@ allerdings wurde für den Broker ein generischer Name gewählt, da er per-se nic
 
 TimeTraces nutzt die Standortdaten des Benutzers und zeigt bei Änderungen dieser Daten ein *Event* an. D.h. ein Benutzer sieht, wann er an welchen Ort war und wann er seinen Standort gewechselt hat. Ein Benutzer logt sich dabei über den beim Location-Service definierten Login ein. Fortan werden die Standortdaten angezeigt. Abbildung \ref{fig_timetraces_integration_screenshot} zeigt einen Screenshot von *TimeTraces* nach der Integration.
 
-Im Anhang unter \ref{src_location_service} ist der Quelltext dieser Integration abgebildet.
-
 ![\label{fig_timetraces_integration_screenshot} *TimeTraces* nach Integration des Standort-Dienstes. Änderungen des Standorts werden im Protokoll angezeigt.
 ](fig_timetraces_integration_screenshot.png)
 
+Als Schwierigkeit bei der Implementierung stellte sich heraus, dass die Standort-Daten nicht immer verlässlich sind und nur in gewissen Perioden eintreffen. Diese können in *OwnTracks* eingestellt werden, allerdings müssen erst optimale Werte gefunden werden. Auch die schwankende Genauigkeit kann ein Problem darstellen. Hat man zuviele Events, so erzeugen sie viele Einträge in der Ereignisliste von *TimeTraces*. Dies wurde eingedämmt, indem der Benutzer eine Mindestdistanz angeben kann. Standort-Ereignisse werden ignoriert, wenn der Abstand zum letzten Standort-Ereignis geringer als dieser Mindestabstand ist.
 
+Im Anhang unter \ref{src_location_service} ist der Quelltext dieser Integration abgebildet (ohne Auswertung der )
 
 \pagebreak
 
 # Diskussion
 
-TODO
+TODO: löschen?
+Das Zusammenspiel von Meteor und MQTT-Daten hat sehr gut funktioniert und liesse sich mit sehr wenig Code umsetzen. 
+
+Schwieriger 
 
 
 \pagebreak
@@ -524,11 +526,22 @@ TODO
 
 ## Indoor-Standorte mittels Beacons
 
-TODO
+Standort-Daten der OwnTracks-Anwendung sind GPS-Daten des Mobilgerätes, diese sind ausserhalb von Gebäuden situativ bis unter 10m genau [^fn_gps_wiki], innerhalb von Gebäuden ist der Standort mit GPS aber nur unzureichend feststellbar.
 
-## Generischer Event-Service
+Für Indoor-Navigation können WLAN-Router genutzt werden oder der von Apple eingeführte *iBeacon* Standart (*Beacon* steht für "Leuchtfeuer"). Der Standort basiert auf *Bluetooth Low Energy (BLE)*-Standard, welcher besonders energiesparend ist. Entsprechend ausgestattene *iBeacons*, d.h. kleine Sendergeräte, senden periodisch ihre Identifikation. Ein naher Empfänger kann diese Identifikation auslesen und die grobe Entfernung zu dem *Beacon* bestimmen, welche in folgende Kategorien eingeteilt wird: Unknown (unbekannt), Immediate (bis 50 cm), Near (bis 2 m) oder Far (bis 30 m) [^fn_wiki_ibeacon]. Der Sender kann dabei keine Daten empfangen. Durch den *Bluetooth Low Energy*-Standard müssen die Batterien in diesen Sendern nur selten ausgewechselt werden. Dadurch können Sie sehr einfach an verschiedenen Stellen platziert werden. Navigation über WLAN-Router funktioniert ähnlich, allerding sind WLAN-Router im Vergleich zu Beacons logistisch schwieriger einzusetzen.
 
-TODO
+Platziert man solche Beacons in Sitzungszimmern, Arbeitsräumen, etc. so kann ein Empfänger bestimmen, in welchem Raum er sich befindet. Auch wenn mehrere Beacons gefunden werden (deren Reichweite bis 30m beträgt), kann durch die obige Reichweiteneinteilung bestimmt werden, welcher der nächste ist.
+
+In der angebundenen Anwendung *TimeTraces* könnte so festgestellt werden, wann und wie lange man in einem Sitzungszimmer war, wann ein Gebäude betreten wurde, etc. 
+
+*OwnTracks* unterstützt BLE Beacons. Mangels Testgeräte konnte ein Versuch damit allerdings noch nicht durchgeführt werden. 
+
+[^fn_gps_wiki]: Siehe [@gps_wiki]
+[^fn_wiki_ibeacon]: Siehe [@wiki_ibeacon]
+
+## Generischer User-Daten und Event-Service
+
+In *TimeTraces* wurde eine erste Aggregation von User-Daten gemacht um ein Arbeitsprotokol für die Zeiterfassung zu erstellen. Dieser *Data Mining*-Ansatz in den eigenen Protokol-Daten inkl. Standort-Daten liesse sich generalisieren um beispielsweise wie der implementierte Location-Service als *Maschine-zu-Maschine*-Schnittstelle exponiert. Andere Anwendungen könnten diese Schnittstellen nutzen und könnten auf die bereits aggregierten und ggf. normalisierten User-Daten und -Events zugreifen. Das Anzeigen und Vorbereiten für die Zeiterfassen dieser Daten könnte diesen Event-Service nutzen und in eine eigene Anwendung ausgegliedert werden.
 
 \pagebreak
 \appendix
@@ -556,9 +569,17 @@ Nachfolgend der Quellcode des Location-Services [location.macrozone.ch](location
 
 <% include 'increase-header.macro.ect', file: "../timetraces/client/LocationService.coffee.md", level: 2 %>
 
-# Github
+Vollständiger Quellcode von TimeTraces unter [github.com/panter/timetraces](https://github.com/panter/timetraces).
 
-TODO
+\pagebreak
+
+
+
+# Quellcode
+
+- location.macrozone.ch: [github.com/macrozone/location_service](https://github.com/macrozone/location_service)
+- TimeTraces: [github.com/panter/timetraces](https://github.com/panter/timetraces)
+
 
 # Quellenangaben
 

@@ -106,6 +106,14 @@ references:
 	URL: https://github.com/kahmali/meteor-restivus/
 	date: 2015-05-25
 	title: Meteor Restivus
+-	id: gps_wiki
+	URL: http://de.wikipedia.org/wiki/Global_Positioning_System
+	title: Global Positioning System Wikipedia
+	date: 2015-06-03
+-	id: wiki_ibeacon
+	URL: http://de.wikipedia.org/wiki/IBeacon
+	title: iBeacon Wikipedia
+	date: 2015-06-03
 ---
 
 
