@@ -114,6 +114,11 @@ references:
 	URL: http://de.wikipedia.org/wiki/IBeacon
 	title: iBeacon Wikipedia
 	date: 2015-06-03
+-	id: ddp
+	URL: https://github.com/meteor/meteor/blob/master/packages/ddp/DDP.md
+	title: DDP Specification
+	date: 2015-06-04
+
 ---
 
 

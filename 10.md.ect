@@ -22,7 +22,7 @@ Im Rahmen einer Seminararbeit wurde für die Controlling- und Zeiterfassungs-App
 
 ![\label{fig_timetraces_2}Eingabemaske für einen Zeiteintrag in *TimeTraces*. Alle Felder werden vorausgefüllt. Quelle [@sem_handheld, p. 23] ](fig_timetraces_2.png)
 
-*TimeTraces* wurde als "Meteor"-Anwendung gebaut (siehe dazu Abschnitt \ref{sec_meteor}) und ist eine Client-Server-Anwendung, welche externe Dienste integriert. Die Anwendung speichert dabei ausser den Benutzer-Logins und den Einstellungen der Benutzer keine weiteren Daten (Siehe Abschnitt \ref{sec_timetraces_nodata}). Sämtliche Daten werden dabei vom Serverteil der Anwendung aggregiert und an den Client gesendet. Die Daten werden vom Server dabei über REST-Schnittstellen in einem Polling-Verfahren abgerufen. Das Polling wird gestartet, sobald der clientseitige Teil der Anwendung die Daten über eine DDP-Subscription abonniert und beendet, sobald der Client die Subscription beendet.
+*TimeTraces* wurde als "Meteor"-Anwendung gebaut (siehe dazu Abschnitt \ref{sec_meteor}) und ist eine Client-Server-Anwendung, welche externe Dienste integriert. Die Anwendung speichert dabei ausser den Benutzer-Logins und den Einstellungen der Benutzer keine weiteren Daten (Siehe Abschnitt \ref{sec_timetraces_nodata}). Sämtliche Daten werden dabei vom Serverteil der Anwendung aggregiert und an den Client gesendet. Die Daten werden vom Server dabei über REST-Schnittstellen in einem Polling-Verfahren abgerufen. Das Polling wird gestartet, sobald der clientseitige Teil der Anwendung die Daten über eine (DDP-)Subscription abonniert und beendet, sobald der Client die Subscription beendet.
 
 Abbildung \ref{fig_timetraces_arch} zeigt den Ablauf einer Subscription eines Clients.
 
@@ -71,6 +71,8 @@ Die Ziele dieser Arbeit sind
 - Setup einer geeigneten MQTT-Broker-Lösung mit geeigneten Sicherheitseinstellungen
 - Verbinden von *OwnTracks* oder einer ähnlichen Anwendung und *TimeTraces* via MQTT und dem gewählten Broker
 
+\pagebreak
+
 # Recherche
 
 ## Standord-Dienste
@@ -111,7 +113,7 @@ Die Anwendung zeichnet den Standort des Benutzers im Hintergrund auf und sendet 
 
 OwnTracks ist als quelloffene Anwendung für IOS und Android erhältlich und ist unter der *Eclipse Public Licence* veröffentlicht. [^fn_licence_owntracks]
 
-Die Verwendung von *OwnTracks* ist im Rahmen dieser Arbeit als Ausgangslage vordefiniert und gibt das Protokoll *MQTT* vor, es sollen aber auch Alternativen betrachtet werden [^fn_owntracks_alternatives]
+Die Verwendung von *OwnTracks* ist im Rahmen dieser Arbeit als Ausgangslage vordefiniert und gibt das Protokoll *MQTT* vor, Alternativen sind aber denkbar [^fn_owntracks_alternatives].
 
 [^fn_owntracks_alternatives]: Owntracks nutzt MQTT als Übertragungsprotokoll. Es ist aber auch denkbar, dass anderen Anwendungen ein anderes Protokoll verwenden.
 [^fn_git_owntracks]: Siehe Quelle [@git_owntracks]
@@ -119,6 +121,11 @@ Die Verwendung von *OwnTracks* ist im Rahmen dieser Arbeit als Ausgangslage vord
 
 
 
+![\label{git_owntracks}Die Anwendung *OwnTracks*](git_owntracks.jpg)
+
+
+
+\pagebreak
 
 ## MQTT
 
@@ -330,6 +337,20 @@ Um dieses Problem zu lösen, kann ein Service erstellt werden, der zwischen *Tim
 
 [^fn_service_with_meteor]: Eine Evaluation möglicher Technologien für einen solchen Service ist nicht Teil dieser Arbeit. Die Wahl der Technologie basiert hier auf Vorwissen und Erfahrung des Autors. 
 
+### Meteor & DDP
+
+Meteor ist ein quelloffenes JavaScript Framework für Echtzeit-Webapplikationen und ist "Full-Stack", d.h. es deckt sowohl den clientseitigen, als auch den serverseitigen Teil einer Webapplikation ab. Isomorphe APIs überbrücken dabei die Grenze zwischen Client und Server und lassen sie zunehmend verschwimmen. So können auf dem Client direkt gewisse (MongoDB)-Datenbankoperationen gemacht werden, Meteor stellt dazu *Mini-Mongo* zur verfügung, eine Client-seitige Implementierung der MongoDB-API. Änderungen an der Datenbank auf einem Client werden über den Server an andere Clients propagiert, die diese Daten abbonniert haben. Der Zugriff auf die Datenbank lässt sich mit Regeln beliebig einschränken. 
+
+JavaScript-Code kann im Framework für drei Bereiche definiert werden: Client+Server (*common*), nur Server oder nur Client. Im *common*-Bereich lässt sich also Code zwischen Client und Server teilen, so muss beispielsweise Validierungslogik nur einmal geschrieben werden.
+
+Weiterhin können mittels *Meteor.methods* auf dem Server definierte Methoden auf dem Client aufgerufen werden, sogenannte *Remote Procedure Calls* (RPC)*. Die serverseitigen *Stubs* dieser Methoden lassen sich auch im *common*-Bereich definieren. Der Client führt dabei eine *Simulation* des RPCs auf dem Client aus und startet gleichzeitig den Aufruf an den Server, diese Methode auszuführen. Meldet dieser eine erfolgreiche Ausführung, so wird die Client-Simulation beibehalten (oder mit dem Ergebnis des Servers ergänzt), andernfalls wird die Simulation rückgängig gemacht. Änderungen an der Datenbank vom Client aus werden ebenfalls so abgebildet.
+
+Mit diesen Client-Simulationen kann der *Round-trip* auf den Server, d.h. die Verzögerung, bis der Server eine Antwort liefert, kompensiert werden; die Client-Anwendung reagiert sofort auf eine Datenänderung. Views werden auf eine reaktive Weise definiert und aktualisieren sich selbsständig, wenn sich die zugrunde liegenden Daten ändern.
+
+Für die Kommunikation zwischen Client und Server ist das *Distributed Data Protocol (DDP)* zuständig, ein vom Meteor-Entwickler-Team entwickeltes Protokoll, welches auf Websockets basiert (mit Fallback auf *long polling* via *SockJS*). Es ermöglicht Nachrichtenaustausch via *publish-subscribe*, sowie *Remote Procedure Calls*. Aktuelle Version ist 1. [^fn_ddp]
+
+[^fn_ddp]: Siehe [@ddp]
+
 ## Konzeption eines Standort-Services
 
 ### Rollen
@@ -414,7 +435,7 @@ Die Anforderungen an diesen Standortservice werden durch folgende *User Stories*
 
 ### System
 
-TODO
+Im folgenden wird das geplante Zusammenspiel der verschiedenen Systeme dargestellt. (TODO)
 
 ![\label{fig_system} Systemübersicht](fig_system.png)
 
@@ -425,7 +446,7 @@ TODO
 
 Der Dienst kommuniziert mit zwei weiteren Diensten und benötigt daher auch zwei Übertragungskanäle, welche potentielle Sicherheitsrisiken bergen.
 
-Beide Kanäle müssen über eine aktuelle Technologie verschlüsselt werden. 
+Beide Kanäle müssen über eine aktuelle Technologie verschlüsselt werden (z.b. SSL / TLS).
 
 #### Datenschutz
 
@@ -434,7 +455,9 @@ Der Dienst speichert die schützenswerten Standort-Daten und muss entsprechend v
 - Ein angemeldeten Benutzer kann nur seine Standort-Daten auslesen und bearbeiten
 - Ein nicht-angemeldeter Benutzer kann keine Daten sehen
 - Die Zugriffsdaten für einen Benutzer müssen hinreichend geschützt sein.
+- Die Datenbank muss vor unbefugtem Zugriff geschützt werden
 
+Prinzipiell darf auch ein Administrator die Standort-Daten der Benutzer nicht auslesen oder sie müssen ausreichend anonymisiert sein. Diese Anforderung wird in dieser Arbeit allerdings nicht berücksichtigt, da dies mit deutlich mehr Aufwand verbunden ist.
 
 
 
@@ -458,10 +481,14 @@ Zertifikat wurde über *RapidSSL* erstellt. Verfügbar ist der Broker unter mqtt
 
 Der Locationservice wurde als Meteor-Applikation umgesetzt. Ein Benutzer kann sich auf den Dienst registrieren mit Benutzername und Passwort,
 danach wird ihm ein Topic angezeigt, welches er in seiner *OwnTracks*-Anwendung auf seinem Smartphone angeben kann. *OwnTracks* wird
-künftig den Standort über den MQTT-Broker an die Anwendung senden. Die Koordinate, welche *OwnTracks* senden, wird über 
-Google's Geocoding-Api [^fnGeocoding] um die Adresse des Standortes ergänzt.
+künftig den Standort über den MQTT-Broker an die Anwendung senden. Die Koordinate, welche *OwnTracks* senden, wird mittels Google's Geocoding-Api [^fnGeocoding] um die Adresse des Standortes ergänzt.
 
 [^fnGeocoding]: Siehe https://developers.google.com/maps/documentation/geocoding/#ReverseGeocoding
+
+
+![\label{fig_owntracks_topic} Das im Location-Service angegebene Topic kann in OwnTracks angegeben werden.
+](fig_owntracks_topic.png)
+
 
 Die Anwendung speichert die Standortdaten inkl. der aufgelösten Adresse des Benutzers in einer *MongoDB*-Datenbank und zeigt die Daten in einer Tabelle und auf einer Karte an. Abbildung \ref{fig_location_screenshot} zeigt die Anwendung, wie sie ein eingeloggter Benutzer sieht. Er kann dabei in der Tabelle bestimmte Einträge löschen.
 
@@ -505,6 +532,7 @@ TimeTraces nutzt die Standortdaten des Benutzers und zeigt bei Änderungen diese
 
 ![\label{fig_timetraces_integration_screenshot} *TimeTraces* nach Integration des Standort-Dienstes. Änderungen des Standorts werden im Protokoll angezeigt.
 ](fig_timetraces_integration_screenshot.png)
+
 
 Als Schwierigkeit bei der Implementierung stellte sich heraus, dass die Standort-Daten nicht immer verlässlich sind und nur in gewissen Perioden eintreffen. Diese können in *OwnTracks* eingestellt werden, allerdings müssen erst optimale Werte gefunden werden. Auch die schwankende Genauigkeit kann ein Problem darstellen. Hat man zuviele Events, so erzeugen sie viele Einträge in der Ereignisliste von *TimeTraces*. Dies wurde eingedämmt, indem der Benutzer eine Mindestdistanz angeben kann. Standort-Ereignisse werden ignoriert, wenn der Abstand zum letzten Standort-Ereignis geringer als dieser Mindestabstand ist.
 
@@ -553,7 +581,7 @@ Nachfolgend der Quellcode des Location-Services [location.macrozone.ch](location
 
 [^fn_literate_coffee]: Siehe [@literate_coffee]
 
-(app.coffee.md)
+
 
 <% include 'increase-header.macro.ect', file: "../location.macrozone.ch/app/app.coffee.md", level: 2 %>
 
